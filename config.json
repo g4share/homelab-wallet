@@ -1,0 +1,31 @@
+{
+  "bitwarden": {
+    "cli_path": "./bw",
+    "server_url": "https://vault.bitwarden.eu",
+    "client_id": "file://./bitwarden/credentials/bw-client-id",
+    "client_secret": "file://./bitwarden/credentials/bw-client-secret",
+    "master_password": "file://./bitwarden/credentials/bw-master-password"
+  },
+  "secrets": [
+    {
+      "note": "beszel-agent",
+      "query": "$.items[?@.type == \"BESZEL_AGENT_KEY\"].value",
+      "output": "file://./bitwarden/secrets/BESZEL_AGENT_KEY"
+    },
+    {
+      "note": "beszel-agent",
+      "query": "$.items[?@.type == \"BESZEL_AGENT_TOKEN\" && @.schema == \"rpi4\"].value",
+      "output": "file://./bitwarden/secrets/BESZEL_AGENT_TOKEN_RPI4"
+    },
+    {
+      "note": "beszel-agent",
+      "query": "$.items[?@.type == \"BESZEL_AGENT_TOKEN\" && @.schema == \"rpi5\"].value",
+      "output": "file://./bitwarden/secrets/BESZEL_AGENT_TOKEN_RPI5"
+    },
+    {
+      "note": "beszel-agent",
+      "query": "$.items[?@.type == \"BESZEL_AGENT_TOKEN\" && @.schema == \"rpi5\"].value",
+      "output": "stdout"
+    }
+  ]
+}
