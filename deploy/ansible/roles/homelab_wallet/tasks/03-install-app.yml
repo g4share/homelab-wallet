@@ -1,0 +1,62 @@
+---
+- name: Create a local build directory
+  ansible.builtin.file:
+    path: "{{ homelab_wallet_build_dir }}"
+    state: directory
+    mode: '0700'
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Determine the Homelab Wallet version from Git
+  ansible.builtin.command:
+    argv:
+      - git
+      - describe
+      - --tags
+      - --always
+      - --dirty
+    chdir: "{{ playbook_dir }}/../.."
+  register: homelab_wallet_version
+  changed_when: false
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Cross-compile the Homelab Wallet app for Raspberry Pi
+  ansible.builtin.command:
+    argv:
+      - go
+      - build
+      - -trimpath
+      - -ldflags
+      - "-X main.version={{ homelab_wallet_version.stdout }}"
+      - -o
+      - "{{ homelab_wallet_build_dir }}/homelab-wallet"
+      - ./cmd/homelab-wallet
+    chdir: "{{ playbook_dir }}/../.."
+  environment:
+    GOOS: linux
+    GOARCH: arm64
+    CGO_ENABLED: '0'
+    GOCACHE: "{{ playbook_dir }}/../.cache/go-build"
+    GOMODCACHE: "{{ playbook_dir }}/../.cache/go-mod"
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Install the Homelab Wallet app binary
+  ansible.builtin.copy:
+    src: "{{ homelab_wallet_build_dir }}/homelab-wallet"
+    dest: "{{ bitwarden_home }}/homelab-wallet"
+    owner: "{{ bitwarden_user }}"
+    group: "{{ bitwarden_group }}"
+    mode: '0755'
+
+- name: Install the configuration for this inventory host
+  ansible.builtin.copy:
+    src: "config-{{ ansible_host }}.json"
+    dest: "{{ bitwarden_home }}/config.json"
+    owner: "{{ bitwarden_user }}"
+    group: "{{ bitwarden_group }}"
+    mode: '0600'

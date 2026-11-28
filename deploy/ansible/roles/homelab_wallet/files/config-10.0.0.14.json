@@ -1,0 +1,21 @@
+{
+  "bitwarden": {
+    "cli_path": "./bw",
+    "server_url": "https://vault.bitwarden.eu",
+    "client_id": "file://${CREDENTIALS_DIRECTORY}/bw-client-id",
+    "client_secret": "file://${CREDENTIALS_DIRECTORY}/bw-client-secret",
+    "master_password": "file://${CREDENTIALS_DIRECTORY}/bw-master-password"
+  },
+  "secrets": [
+    {
+      "note": "beszel-agent",
+      "query": "$.items[?@.type == \"BESZEL_AGENT_KEY\"].value",
+      "output": "file:///dev/shm/homelab-wallet/secrets/beszel/BESZEL_AGENT_KEY?group=dock-beszel-agent&mode=0240&dir_mode=0710"
+    },
+    {
+      "note": "beszel-agent",
+      "query": "$.items[?@.type == \"BESZEL_AGENT_TOKEN\" && @.schema == \"rpi4\"].value",
+      "output": "file:///dev/shm/homelab-wallet/secrets/beszel/BESZEL_AGENT_TOKEN?group=dock-beszel-agent&mode=0240&dir_mode=0710"
+    }
+  ]
+}

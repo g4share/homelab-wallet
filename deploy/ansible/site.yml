@@ -1,0 +1,17 @@
+---
+- name: Deploy Homelab Wallet
+  hosts: all
+  become: true
+  gather_facts: false
+
+  vars:
+    bitwarden_group: bitwarden
+    bitwarden_user: bitwarden
+    bitwarden_home: /var/lib/bitwarden
+    bitwarden_shell: /usr/sbin/nologin
+    bitwarden_home_mode: '0750'
+    homelab_wallet_build_dir: "{{ playbook_dir }}/../.build"
+    force_credentials: false
+
+  roles:
+    - homelab_wallet

@@ -1,0 +1,24 @@
+[Unit]
+Description=Homelab Bitwarden wallet
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=bitwarden
+Group=bitwarden
+SupplementaryGroups=dock-beszel-agent
+WorkingDirectory=/var/lib/bitwarden
+Environment=HOME=/var/lib/bitwarden
+Environment=HOMELAB_WALLET_LOG_LEVEL=debug
+StateDirectory=bitwarden
+ExecStart=/var/lib/bitwarden/homelab-wallet -config /var/lib/bitwarden/config.json
+
+LoadCredentialEncrypted=bw-client-id:/etc/credstore.encrypted/bw-client-id
+LoadCredentialEncrypted=bw-client-secret:/etc/credstore.encrypted/bw-client-secret
+LoadCredentialEncrypted=bw-master-password:/etc/credstore.encrypted/bw-master-password
+
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

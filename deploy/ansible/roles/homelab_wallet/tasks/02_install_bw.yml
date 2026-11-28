@@ -1,0 +1,32 @@
+---
+- name: Derive Bitwarden CLI archive and release version
+  ansible.builtin.set_fact:
+    bitwarden_cli_archive: "{{ bitwarden_cli_asset | regex_replace('\\.zip$', '') }}.zip"
+    bitwarden_cli_version: "{{ (bitwarden_cli_asset | regex_replace('\\.zip$', '')).split('-') | last }}"
+
+- name: Download the selected Bitwarden CLI archive into the service home
+  ansible.builtin.get_url:
+    url: "https://github.com/bitwarden/clients/releases/download/cli-v{{ bitwarden_cli_version }}/{{ bitwarden_cli_archive }}"
+    dest: "{{ bitwarden_home }}/{{ bitwarden_cli_archive }}"
+    owner: "{{ bitwarden_user }}"
+    group: "{{ bitwarden_group }}"
+    mode: '0600'
+
+- name: Extract the Bitwarden CLI archive into the service home
+  ansible.builtin.unarchive:
+    src: "{{ bitwarden_home }}/{{ bitwarden_cli_archive }}"
+    dest: "{{ bitwarden_home }}"
+    remote_src: true
+
+- name: Set ownership and executable permissions on the Bitwarden CLI
+  ansible.builtin.file:
+    path: "{{ bitwarden_home }}/bw"
+    state: file
+    owner: "{{ bitwarden_user }}"
+    group: "{{ bitwarden_group }}"
+    mode: '0755'
+
+- name: Remove the Bitwarden CLI archive
+  ansible.builtin.file:
+    path: "{{ bitwarden_home }}/{{ bitwarden_cli_archive }}"
+    state: absent

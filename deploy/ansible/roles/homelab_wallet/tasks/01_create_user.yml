@@ -1,0 +1,24 @@
+---
+- name: Ensure the Bitwarden system group exists
+  ansible.builtin.group:
+    name: "{{ bitwarden_group }}"
+    system: true
+    state: present
+
+- name: Ensure the restricted Bitwarden service account exists
+  ansible.builtin.user:
+    name: "{{ bitwarden_user }}"
+    group: "{{ bitwarden_group }}"
+    home: "{{ bitwarden_home }}"
+    create_home: true
+    shell: "{{ bitwarden_shell }}"
+    system: true
+    state: present
+
+- name: Ensure the service home directory permissions
+  ansible.builtin.file:
+    path: "{{ bitwarden_home }}"
+    state: directory
+    owner: "{{ bitwarden_user }}"
+    group: "{{ bitwarden_group }}"
+    mode: "{{ bitwarden_home_mode }}"

@@ -24,6 +24,17 @@ Homelab Wallet is a Go application that reads selected data from a Bitwarden Pas
 - Output handlers include `file://` and `stdout`. File outputs support `group`, `mode`, and `dir_mode`; default file and directory modes are `0600` and `0700` respectively.
 - Bitwarden Secrets Manager (`bws`) machine access tokens are a separate product and do not provide access to Password Manager Secure Notes.
 
+## Deployment
+
+- Ansible deployment files are under `deploy/ansible/`. The `site.yml` playbook provisions the target, installs `bw` and the Go application, installs the host-specific configuration, encrypts Bitwarden credentials with `systemd-creds`, and installs and starts the systemd service with its Docker ordering drop-in.
+- The playbook builds the Go binary on the Mac for Linux ARM64. Keep its build and module caches under `deploy/ansible/`.
+- The current inventory host is `rpi4` at `10.0.0.14`, accessed as SSH user `gmunteanu`. The current deployment command is `ansible-playbook -i deploy/ansible/inventory.yml --ask-pass --ask-become-pass deploy/ansible/site.yml`.
+- The target needs systemd 250 or newer for encrypted credentials. Ansible prompts for `client_id`, `client_secret`, and `master_password` only when their encrypted credential files are missing; `force_credentials=true` replaces them.
+- Before deployment, create the dedicated non-login host user and group for each container that reads a secret. `deploy/ansible/add-container-user.sh` reserves IDs 5000–5999. The container's UID:GID must match the host account's numeric IDs.
+- The current service unit grants the `dock-beszel-agent` supplementary group. Host output configuration assigns that group and file permissions to Beszel secrets. Add separate groups and matching service/configuration permissions to isolate additional containers.
+- `deploy/examples/beszel-agent.yml` is an example Compose file only; the Ansible playbook does not deploy it.
+- On the current Raspberry Pi, no usable TPM is detected. Without TPM binding or separate disk encryption, someone with physical access to the system disk may obtain both `systemd-creds` ciphertext and the host key. Root on the running system can access credentials supplied to the service.
+
 ## Configuration and sensitive data
 
 - Do not hard-code credentials or include real credentials in documentation, examples, logs, or commits.

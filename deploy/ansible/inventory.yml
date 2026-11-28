@@ -1,0 +1,6 @@
+all:
+  hosts:
+    rpi4:
+      ansible_host: 10.0.0.14
+      ansible_user: gmunteanu
+      bitwarden_cli_asset: bw-bit-linux-arm64-2026.11.0
